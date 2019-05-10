@@ -75,6 +75,7 @@ class LWTV_Docs_CPT_API {
 			'hierarchical'        => true,
 			'supports'            => array( 'title', 'editor', 'thumbnail', 'revisions', 'page-attributes' ),
 			'has_archive'         => false,
+			'capability_type'     => 'page',
 			'rewrite'             => array( 'slug' => 'api' ),
 			'delete_with_user'    => false,
 			'exclude_from_search' => false,
