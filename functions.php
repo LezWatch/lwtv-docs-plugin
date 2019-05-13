@@ -24,6 +24,8 @@ if ( file_exists( WP_CONTENT_DIR . '/library/functions.php' ) ) {
  */
 class LWTV_Docs_Functions {
 
+	protected static $version;
+
 	/**
 	 * Constructor.
 	 *
@@ -31,8 +33,11 @@ class LWTV_Docs_Functions {
 	 * @return void
 	 */
 	public function __construct() {
+		self::$version = '1.0';
 		add_filter( 'http_request_args', array( $this, 'disable_wp_update' ), 10, 2 );
 		add_action( 'pre_current_active_plugins', array( $this, 'hide_lwtv_plugin' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
+		add_action( 'wp_footer', array( $this, 'gdpr_footer' ), 5 );
 	}
 
 	/**
@@ -72,6 +77,30 @@ class LWTV_Docs_Functions {
 			$return['body']['plugins'] = wp_json_encode( $plugins );
 		}
 		return $return;
+	}
+
+	/**
+	 * Enqueue Scripts
+	 */
+	public function wp_enqueue_scripts() {
+		wp_enqueue_style( 'lwtvdocs-gdpr', plugins_url( '/inc/gdpr.css', __FILE__ ), '', self::$version, 'all' );
+		wp_enqueue_script( 'lwtvdocs-gdpr', plugins_url( '/inc/gdpr.js', __FILE__ ), array( 'bootstrap' ), self::$version, 'all', true );
+
+	}
+
+	/**
+	 * Echo GDPR notice if users aren't logged in
+	 * (logged in users alredy know what they're in for, yo)
+	 */
+	public function gdpr_footer() {
+		if ( ! is_user_logged_in() ) {
+			?>
+			<div id="GDPRAlert" class="alert alert-info alert-dismissible fade collapse alert-gdpr" role="alert">
+				We use cookies to personalize content, provide features, analyze traffic, and optimize advertising. By continuing to use this website, you agree to their use. For more information, you may review our <a href="/terms-of-use/">Terms of Use</a> and <a href="/terms-of-use/privacy/">Privacy Policy</a>.
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			</div>
+			<?php
+		}
 	}
 
 }
